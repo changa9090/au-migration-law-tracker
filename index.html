@@ -95,10 +95,15 @@ details.archive summary{cursor:pointer;font-weight:700;color:var(--burgundy);pad
 .glossary dt{font-weight:700;margin-top:14px}
 .glossary dd{margin:2px 0 0;font-size:.9rem;color:var(--charcoal-soft)}
 footer{margin-top:48px;font-size:.8rem;color:var(--muted);border-top:1px solid var(--line);padding-top:16px}
+.visit-counter{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
+.visit-counter[hidden]{display:none}
+.visit-counter span{background:var(--white);border:1px solid var(--line);border-radius:999px;padding:4px 12px;
+font-size:.8rem;color:var(--charcoal-soft)}
+.visit-counter b{color:var(--burgundy);font-weight:800;margin-left:4px;font-variant-numeric:tabular-nums}
 html[lang=en] .l-ko,html[lang=ko] .l-en{display:none}
 @media (max-width:960px){.site-header .product{display:none}}
 @media (max-width:720px){.site-header .bar{padding:8px 12px;gap:8px}.site-header .brand img{height:26px}
-.site-header .btn{padding:7px 10px;font-size:.8rem}.subnav .inner{padding:0 12px}
+.site-header .btn{padding:7px 10px;font-size:.8rem}.site-header .btn-cafe{display:none}.subnav .inner{padding:0 12px}
 .subnav .ext{margin-left:0}h1{font-size:1.5rem}}
 </style>
 </head>
@@ -108,6 +113,8 @@ html[lang=en] .l-ko,html[lang=ko] .l-en{display:none}
 <a class="brand" href="https://parklawyers.com.au/"><img src="assets/brand/logo-positive.png" alt="Park &amp; Co Lawyers" width="116" height="34"></a>
 <a class="product" href="#top">Migration Law Tracker &middot; 이민법 변경 추적</a>
 <div class="actions"><button id="lang-toggle" class="btn btn-secondary" type="button">한국어</button>
+<a class="btn btn-secondary btn-cafe" href="https://cafe.naver.com/immispecialist" target="_blank" rel="noopener"
+ title="Free Q&amp;A board on Naver Cafe">무료 상담 게시판</a>
 <a class="btn btn-primary" href="https://parklawyers.com.au/links/?lang=ko" target="_blank" rel="noopener" title="Contact Park &amp; Co Lawyers">박앤코 문의하기 &rarr;</a></div>
 </div>
 <nav class="subnav" aria-label="Page navigation"><div class="inner">
@@ -124,7 +131,7 @@ html[lang=en] .l-ko,html[lang=ko] .l-en{display:none}
         data-kr="호주 이민법 변경 사항 쉬운 설명">Australian Migration Law Changes in Plain English</h1>
     <p class="sub" data-en="A plain-language timeline of new and amended migration rules, built automatically from public data on legislation.gov.au."
        data-kr="legislation.gov.au의 공개 데이터를 바탕으로 새로 만들어지거나 바뀐 이민 규정을 쉬운 말로 정리한 타임라인입니다. 자동 생성됩니다.">A plain-language timeline of new and amended migration rules, built automatically from public data on legislation.gov.au.</p>
-    <p class="updated"><span data-en="Last updated:" data-kr="마지막 업데이트:">Last updated:</span> 15 Oct 2026, 06:30 AEST</p>
+    <p class="updated"><span data-en="Last updated:" data-kr="마지막 업데이트:">Last updated:</span> 15 Oct 2026, 11:00 AEST</p>
   </div>
 </div>
 
@@ -628,6 +635,14 @@ html[lang=en] .l-ko,html[lang=ko] .l-en{display:none}
 </section>
 
 <footer>
+<div class="visit-counter" id="visit-counter" hidden>
+<span>Total visits &middot; 누적 방문<b id="vc-total">-</b></span>
+<span>Today &middot; 오늘 방문<b id="vc-today">-</b></span>
+<span>Visitors &middot; 방문자<b id="vc-visitors">-</b></span>
+</div>
+<p><span data-en="Free questions:" data-kr="무료 질문:">Free questions:</span>
+<a href="https://cafe.naver.com/immispecialist" target="_blank" rel="noopener">무료 상담 게시판 (Naver Cafe)</a> &middot;
+<a href="https://parklawyers.com.au/links/?lang=ko" target="_blank" rel="noopener">박앤코 문의하기</a></p>
   <span data-en="Source data:" data-kr="데이터 출처:">Source data:</span>
   <a href="https://www.legislation.gov.au" target="_blank" rel="noopener">legislation.gov.au</a> —
   <span data-en="the official Federal Register of Legislation. This page is regenerated automatically every morning."
@@ -665,6 +680,28 @@ html[lang=en] .l-ko,html[lang=ko] .l-en{display:none}
       document.querySelectorAll('details.archive').forEach(function(d){if(want!=='all'){d.open=true;}});
     });
   });
+})();
+</script>
+<script>
+(function(){
+  var NS='changa9090.github.io',API='https://abacus.jasoncameron.dev/';
+  var P='aumlt'+(location.hostname==='changa9090.github.io'?'':'-dev');
+  var day=new Intl.DateTimeFormat('en-CA',{timeZone:'Australia/Brisbane'}).format(new Date()).replace(/-/g,'');
+  var seen=false;
+  try{seen=!!localStorage.getItem(P+'-seen');localStorage.setItem(P+'-seen','1');}catch(e){}
+  function call(kind,key){
+    return fetch(API+kind+'/'+NS+'/'+P+'-'+key)
+      .then(function(r){if(!r.ok)throw new Error(r.status);return r.json();})
+      .then(function(j){return j.value;});
+  }
+  Promise.all([call('hit','total'),call('hit','day-'+day),call(seen?'get':'hit','visitors')])
+    .then(function(v){
+      var fmt=function(n){return Number(n).toLocaleString('en-AU');};
+      document.getElementById('vc-total').textContent=fmt(v[0]);
+      document.getElementById('vc-today').textContent=fmt(v[1]);
+      document.getElementById('vc-visitors').textContent=fmt(v[2]);
+      document.getElementById('visit-counter').hidden=false;
+    }).catch(function(){});
 })();
 </script>
 </body>
